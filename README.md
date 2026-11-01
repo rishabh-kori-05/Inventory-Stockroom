@@ -1,69 +1,74 @@
-# Stockroom
+# Stockroom — Inventory Management
 
-A small inventory module I built for shops and wholesale counters that want to track stock without a full ERP. It runs on Node with a single SQLite file, so there is nothing to install besides Node itself and nothing to host.
+A lightweight inventory application for shops and wholesale counters. It uses Node.js and SQLite and records stock changes in a movement ledger.
 
-It does the boring parts properly: every change in quantity is written to a ledger, so the number on the product always matches its history.
+## Features
 
-## What it does
+- Product records with SKU, category, supplier, unit, pricing and reorder level
+- Stock movements for purchases, sales, returns, damage and adjustments
+- Movement ledger with running balances
+- Low-stock and out-of-stock overview
+- Product search and category filtering
+- Supplier and category management
+- CSV export
+- Prevents negative stock
+- Archives products with movement history instead of deleting their history
 
-- Products with SKU, category, supplier, unit, cost, selling price, rack/bin location and a reorder level
-- Stock movements: opening stock, received, sold, customer return, damaged/lost, and stock-count corrections
-- A ledger of every movement with the running balance after it
-- Overview page: product count, stock value at cost and at selling price, low-stock and out-of-stock counts, and a short reorder list
-- Search by name or SKU, filter by category or stock level
-- Categories and suppliers
-- CSV export of current stock
-- Negative stock is refused (you get told how much is actually in stock)
-- Removing a product that has history archives it instead of deleting it, so old ledger entries still make sense
+## Tech stack
 
-## Running it
+- Node.js
+- SQLite
+- REST API
+- HTML, CSS and vanilla JavaScript
 
-You need Node 18 or newer.
+## Run locally
 
-```
-git clone <your-repo-url> stockroom
-cd stockroom
+Requirements: Node.js 18+ and npm.
+
+```bash
+git clone https://github.com/rishabh-kori-05/Inventory-Stockroom.git
+cd Inventory-Stockroom
 npm install
-npm run seed     # optional, adds a few sample items
+npm run seed
 npm start
 ```
 
-Then open http://localhost:3000. The data lives in `inventory.db` next to the code. Back it up by copying that file.
+Open `http://localhost:3000` in your browser. Seeding is optional and adds sample inventory records.
 
-`PORT` and `DB_FILE` environment variables change the port and database location.
+## Configuration
 
-## Layout
+- `PORT` changes the server port.
+- `DB_FILE` changes the SQLite database file location.
 
-```
-db.js        schema, and the one function that changes stock
-server.js    REST API and static files
-seed.js      sample data
-public/      the UI (plain HTML, CSS and JS, no build step)
-```
+The application stores data in a local SQLite database. Back up the database file before making changes to a working installation.
 
-## API
+## API overview
 
-| Method | Path | |
+| Method | Endpoint | Purpose |
 |---|---|---|
-| GET | /api/summary | totals and reorder list |
-| GET | /api/products?q=&category=&status=low\|out | list |
-| POST / PUT / DELETE | /api/products[/:id] | create, edit, remove |
-| GET / POST | /api/movements | ledger / record a movement |
-| GET / POST | /api/categories | |
-| GET / POST | /api/suppliers | |
-| GET | /api/export/products.csv | |
+| GET | `/api/summary` | Inventory totals and reorder list |
+| GET | `/api/products` | List and filter products |
+| POST / PUT / DELETE | `/api/products[/:id]` | Manage products |
+| GET / POST | `/api/movements` | Read or record stock movements |
+| GET / POST | `/api/categories` | Manage categories |
+| GET / POST | `/api/suppliers` | Manage suppliers |
+| GET | `/api/export/products.csv` | Export products |
 
-A movement is `{ product_id, type, qty, note }` where type is one of `purchase`, `sale`, `return`, `damage`, `adjust`. For `adjust`, `qty` is the counted stock, not the difference.
+A movement contains `product_id`, `type`, `qty` and an optional `note`. For an `adjust` movement, `qty` is the counted stock quantity.
 
-## Not done yet
+## Current limitations
 
-- Purchase orders and supplier invoices
-- Batch / expiry tracking
-- Barcode scanning
-- CSV import
-- Users and login. It assumes it is on a trusted machine or network, so put it behind something if you expose it.
-- Multiple warehouses
+The current project does not include purchase orders, supplier invoices, batch/expiry tracking, barcode scanning, CSV import, user authentication or multi-warehouse support. It is intended for a trusted local environment; do not expose it directly to an untrusted network without adding appropriate access controls.
+
+## Project structure
+
+```text
+db.js       Database schema and stock update logic
+server.js   REST API and static file server
+seed.js     Optional sample data
+public/     Frontend files
+```
 
 ## License
 
-MIT
+MIT. See [LICENSE](./LICENSE).
